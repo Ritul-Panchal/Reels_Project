@@ -12,7 +12,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import './Signup.css';
 import insta from '../RequiredItems/insta.jpg'
 import { Link, useNavigate } from "react-router-dom";
-import { auth } from '../firebase';
+import { database, storage } from '../firebase';
 export default function Signup() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -20,7 +20,7 @@ export default function Signup() {
     const [file, setFile] = useState(null);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const history = useNavigate();
+    const navigate = useNavigate();
     const { signup } = useContext(AuthContext);
 
     const useStyles = makeStyles({
@@ -50,9 +50,43 @@ export default function Signup() {
             let userObj = await signup(email, password);
             let uid = userObj.user.uid;
             // console.log(uid);
-            
+            const uploadTask = storage.ref(`/users/${uid}/profileImage`).put(file);
+            // fn1 -> progress
+            // fn2 -> error 
+            // fn3-> success
+            uploadTask.on('state_changed', fn1, fn2, fn3);
+            function fn1(snapshot) {
+                var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                console.log(progress);
+            }
+
+            function fn2(error) {
+                setError(error);
+                setTimeout(() => {
+                    setError('');
+                }, 2000);
+                setLoading(false);
+                return;
+            }
+
+            async function fn3() {
+                uploadTask.snapshot.ref.getDownloadURL().then((url) => {
+                    console.log(url);
+                    database.users.doc(uid).set({
+                        email: email,
+                        userId: uid,
+                        fullName:name,
+                        profileUrl: url,
+                        createdAt: database.getUserTimeStamp()
+                    })
+                })
+                setLoading(false);
+                navigate('/')
+
+            }
+
         }
-        catch(err) {
+        catch (err) {
             setError(err);
             setTimeout(() => {
                 setError('');
@@ -91,7 +125,7 @@ export default function Signup() {
                         </label>
                     </CardContent>
                     <CardActions>
-                        <Button color="primary" variant='contained' fullWidth={true} disable={loading} onClick={handleClick}>Sign up</Button>
+                        <Button color="primary" variant='contained' fullWidth={true} disabled={loading} onClick={handleClick}>Sign up</Button>
                     </CardActions>
                     <CardContent>
                         <Typography className={classes.text1} variant="subtitle2">
