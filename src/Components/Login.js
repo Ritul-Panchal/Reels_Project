@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useContext} from 'react';
+import { useContext, useState } from 'react';
 import { AuthContext } from '../Context/AuthProvider';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
@@ -13,7 +13,7 @@ import 'pure-react-carousel/dist/react-carousel.es.css';
 import './Login.css';
 import insta from '../RequiredItems/insta.jpg'
 import bg from '../RequiredItems/dummyPhone.png'
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import img1 from '../RequiredItems/img1.jpg'
 import img2 from '../RequiredItems/img2.jpg'
 import img3 from '../RequiredItems/img3.jpg'
@@ -21,7 +21,7 @@ import img4 from '../RequiredItems/img4.jpg'
 import img5 from '../RequiredItems/img5.jpg'
 export default function Login() {
     const store = useContext(AuthContext);
-    console.log(store);
+    // console.log(store);
     const useStyles = makeStyles({
         text1: {
             color: "gray",
@@ -38,6 +38,31 @@ export default function Login() {
         }
     })
     const classes = useStyles();
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+    const { login } = useContext(AuthContext);
+    const navigate = useNavigate();
+
+    const handleClick = async () => {
+        try {
+            setError('');
+            setLoading(true);
+            let res = await login(email, password);
+            setLoading(false);
+            navigate('/');
+
+        } catch (err) {
+            setError(err);
+            console.log("hello error");
+            setTimeout(() => {
+                setError('');
+            }, 2000);
+            setLoading(false);
+        }
+    }
+
     return (
         <div className="loginWrapper">
             <div className="imgcar" style={{ backgroundImage: 'url(' + bg + ')', backgroudSize: "cover" }}>
@@ -73,20 +98,20 @@ export default function Login() {
                         />
                     </div>
                     <CardContent>
-                        {true && <Alert severity="error">This is an error alert — check it out!</Alert>}
-                        <TextField id="outlined-basic" label="Email" variant="outlined" fullWidth={true} margin='dense' size="small" />
-                        <TextField id="outlined-basic" label="Password" variant="outlined" fullWidth={true} margin='dense' size="small" />
+                        {error != '' && <Alert severity="error">{error}</Alert>}
+                        <TextField id="outlined-basic" label="Email" variant="outlined" fullWidth={true} margin='dense' size="small" value={email} onChange={(e) => setEmail(e.target.value)} />
+                        <TextField id="outlined-basic" label="Password" variant="outlined" fullWidth={true} margin='dense' size="small" value={password} onChange={(e) => setPassword(e.target.value)} />
                         <Typography className={classes.text2} color="primary" variant="subtitle2">
                             Forgot Password?
                         </Typography>
                     </CardContent>
                     <CardActions>
-                        <Button color="primary" variant='contained' fullWidth={true}>Login</Button>
+                        <Button color="primary" variant='contained' fullWidth={true} onClick={handleClick} disabled={loading}>Login</Button>
                     </CardActions>
                 </Card>
                 <Card variant="outlined" className={classes.card2}>
                     <Typography className={classes.text1} variant="subtitle1">
-                        Don't have an account?<Link to="/signup" style={{textDecoration:'none'}}>Signup</Link>
+                        Don't have an account?<Link to="/signup" style={{ textDecoration: 'none' }}>Signup</Link>
                     </Typography>
                 </Card>
             </div>

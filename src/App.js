@@ -5,6 +5,7 @@ import Signup from './Components/Signup';
 import Login from './Components/Login';
 import Feed from './Components/Feed';
 import { AuthProvider } from './Context/AuthProvider';
+import PrivateRoute from './Components/PrivateRoute';
 function App() {
   return (
     <BrowserRouter>
@@ -12,7 +13,9 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />}></Route>
           <Route path="/signup" element={<Signup />}></Route>
-          <Route path="/" element={<Feed />}></Route>
+          <Route path="/" element={<PrivateRoute/>}>
+            <Route path="/" element={<Feed/>}></Route>
+          </Route>
         </Routes>
       </AuthProvider>
     </BrowserRouter>
