@@ -53,7 +53,7 @@ function Posts({ userData }) {
                             posts.map((post, index) => (
                                 <React.Fragment key={index}>
                                     <div className='videos'>
-                                        <Video src={post.pUrl} />
+                                        <Video src={post.pUrl} id={post.pId} />
                                         <div className='fa' style={{ display: "flex" }}>
                                             <Avatar src={userData.profileUrl} />
                                             <h4>{userData.fullname}</h4>
