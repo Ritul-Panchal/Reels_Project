@@ -44,6 +44,30 @@ function Posts({ userData }) {
         })
         return () => unsub()
     }, []);
+
+    const callback = (entries) => {
+        entries.forEach((entry) => {
+            let ele = entry.target.childNodes[0]
+            // console.log(ele)
+            ele.play().then(() => {
+                if (!ele.paused && !entry.isIntersecting) {
+                    ele.pause()
+                }
+            })
+        })
+    }
+
+    let observer = new IntersectionObserver(callback, { threshold: 0.6 });
+    useEffect(() => {
+        const elements = document.querySelectorAll(".videos")
+        elements.forEach((element) => {
+            observer.observe(element)
+        })
+        return () => {
+            observer.disconnect();
+        }
+    }, [posts])
+
     return (
         <div>
             {
@@ -75,14 +99,14 @@ function Posts({ userData }) {
                                                     </video>
                                                 </div>
                                                 <div className='comment-modal'>
-                                                    <Card className='card1' style={{padding:'1rem'}}>
+                                                    <Card className='card1' style={{ padding: '1rem' }}>
                                                         <Comments postData={post} />
                                                     </Card>
                                                     <Card variant='outlined' className='card2'>
-                                                        <Typography style={{padding:'0.4rem'}} >{post.likes.length == 0?'Liked by nobody':`Liked by ${post.likes.length} users`}</Typography>
-                                                        <div style={{display:'flex'}}>
-                                                            <Like2 postData={post} userData={userData} style={{display:'flex', justifyContent:'center', alignItems:'center'}} />
-                                                            <AddComment style={{display:'flex',alignItems:'center',justifyContent:'center'}} userData={userData} postData={post} />
+                                                        <Typography style={{ padding: '0.4rem' }} >{post.likes.length == 0 ? 'Liked by nobody' : `Liked by ${post.likes.length} users`}</Typography>
+                                                        <div style={{ display: 'flex' }}>
+                                                            <Like2 postData={post} userData={userData} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }} />
+                                                            <AddComment style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} userData={userData} postData={post} />
                                                         </div>
                                                     </Card>
                                                 </div>
